@@ -1,0 +1,40 @@
+# Use the official ROS Noetic desktop image as the base
+FROM osrf/ros:noetic-desktop
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install additional dependencies
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
+    ros-noetic-cv-bridge \
+    ros-noetic-pcl-ros \
+    ros-noetic-ros-numpy \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a directory for the app
+WORKDIR /app
+
+# Install Python dependencies (if any)
+COPY requirements_rosbag.txt .
+RUN pip3 install --upgrade pip \
+    && pip3 install -r requirements_rosbag.txt
+
+# Set up the local user (change UID and GID as needed)
+ARG USERNAME=localuser
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} ${USERNAME} \
+    && useradd -m -u ${UID} -g ${GID} -s /bin/bash ${USERNAME} \
+    && chown -R ${USERNAME}:${USERNAME} /app
+
+# Switch to the local user
+USER ${USERNAME}
+
+# Copy your ROS bag processing script to the Docker image
+COPY scripts/extract_bag.py /app/extract_bag.py
+
+# Default command
+#CMD ["python3", "/app/extract_bag.py"]
+CMD ["bash"]

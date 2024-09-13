@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  segment-anything:
+    build: .
+    image: segment-anything:latest
+    container_name: segment-anything-container
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - ./data:/app/data  # Replace with the correct path to your data
+    command: bash
+    user: "${UID}:${GID}"
+
+  rosbag-processor:
+    build:
+      context: .
+      dockerfile: Dockerfile.rosbag
+    image: rosbag-processor:latest
+    container_name: rosbag-processor-container
+    volumes:
+      - ./data/bags:/app/bags  # Replace with the correct path to your ROS bag files
+      - ./data/output:/app/output  # Output directory for images and PCD files
+      - ./scripts:/app/scripts
+    user: "${UID}:${GID}"
+    command: python3 extract_bag.py bags/auto_2024-07-18-06-59-26.bag output/

@@ -1,0 +1,4 @@
+*.bag
+.ipynb_checkpoints
+*.pcd
+data/output/*
