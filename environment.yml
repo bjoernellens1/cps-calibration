@@ -1,6 +1,7 @@
 name: cps-calibration
 channels:
   - conda-forge
+  - robostack
 dependencies:
   - python=3.11
   - jupyterlab
